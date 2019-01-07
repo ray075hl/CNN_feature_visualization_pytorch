@@ -70,6 +70,8 @@ plt.grid(False)
 plt.imshow(display_grad, aspect='auto', cmap='viridis')
 plt.show()
 
+cv2.imwrite('2.jpg', display_grad)
+
 
 
 

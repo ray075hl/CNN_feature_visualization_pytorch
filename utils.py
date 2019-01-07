@@ -15,7 +15,7 @@ def Show_origin_and_output(origin, I):
    plt.axis('off')
    plt.subplot(122),plt.imshow(np.flip(I, 2)),plt.title('Mixed Heatmap')
    plt.axis('off')
-   plt.savefig('result1.png', bbox_inches='tight', pad_inches=0)
+   plt.savefig('result1.jpg', bbox_inches='tight', pad_inches=0)
    plt.show()
 
 

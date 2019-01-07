@@ -54,17 +54,24 @@ net = VfModel(vgg, 'block4_conv1')
 size = 150
 input_img = Variable(torch.randn(1, 3, size, size) * 20 + 128., requires_grad=True)
 filters_num = net(input_img).size()[1]
+# Save time
+if filters_num > 8:
+    filters_num = 8
 
-filters_num = 8
 image_per_row = 4
 rows = filters_num // image_per_row
 display_grad = np.zeros((size * rows, image_per_row * size, 3))
 
 step = 1.0
-for filter_index in range(filters_num):
-    # input_img = copy.deepcopy(Variable(torch.randn(1, 3, size, size) * 20 + 128., requires_grad=True))
-    row = filter_index // image_per_row
-    col = filter_index - row * image_per_row
+
+input_img = Variable(torch.randn(1, 3, size, size) * 20 + 128., requires_grad=True)
+
+
+def gen_feature_activation(filter_index):
+    global grads
+    global input_img
+    grads = {}
+
     # Gradient ascent
     for i in range(40):
 
@@ -80,15 +87,28 @@ for filter_index in range(filters_num):
 
         grads_ = grads['input_img']
         # print(grads.size())
-        grads = {}
+        print(loss.item())
         input_img = input_img + grads_ * step
 
-    print(filter_index, input_img.size())
     output_img = deprocess_image(input_img.squeeze().cpu().detach().numpy())
 
-    display_grad[row*size : (row+1)*size, col*size: (col+1)*size, :] = output_img
+    return output_img
+
+
+for filter_index in range(filters_num):
+
+    row = filter_index // image_per_row
+    col = filter_index - row * image_per_row
+
+    re = gen_feature_activation(filter_index)
+
+    re1 = copy.deepcopy(re)
+
+    display_grad[row * size: (row + 1) * size, col * size: (col + 1) * size, :] = re1
 
 scale = 1. / size
 plt.figure(figsize=(scale * display_grad.shape[1], scale * display_grad.shape[0]))
 plt.imshow(display_grad/255.0, aspect='auto', cmap='viridis')
 plt.show()
+
+cv2.imwrite('1.jpg', display_grad)
